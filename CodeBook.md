@@ -16,7 +16,10 @@ fileloc<-"./data/UCI HAR Dataset/"
 ```
 
 ### Transformations
-
+The package "dplyr" is required.
+```
+library(dplyr)
+```
 Relevant data was read into R using the .txt files provided and saved as variables.
 
 ```{r}
@@ -51,9 +54,46 @@ Data from both the test and train set can now be combined into a single data set
 samsung<-rbind(traindata,testdata)
 ```
 
+Change the activity ID from a number to the description, and change the 
+activity and subject columns to factors.
+```
+samsung$Activity<-factor(samsung$Activity,activity_labels[,1],activity_labels[,2])
+samsung$SubjectID<-factor(samsung$SubjectID,1:30)
+```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+Remove the unnecessary columns by selecting only the required mean and std
+columns, plus the subject and activity columns for identification
+```
+tidydata<-
+  samsung %>% 
+  select(SubjectID,Activity,contains("mean"),contains("std"))
+```
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+Rename the columns by using information from features_info.txt
+```
+names(tidydata)<-gsub("^t","Time",names(tidydata))
+names(tidydata)<-gsub("angle(t","Angle(Time",names(tidydata),fixed=T)
+names(tidydata)<-gsub("Freq()","Frequency",names(tidydata),fixed=T)
+names(tidydata)<-gsub("^f","Frequency",names(tidydata))
+names(tidydata)<-gsub("-mean()","Mean",names(tidydata),fixed=T)
+names(tidydata)<-gsub("mean","Mean",names(tidydata))
+names(tidydata)<-gsub("-std()","Std",names(tidydata),fixed=T)
+names(tidydata)<-gsub("[Bb]ody[Bb]ody","Body",names(tidydata))
+names(tidydata)<-gsub("Acc","Accelerometer",names(tidydata))
+names(tidydata)<-gsub("Gyro","Gyroscope",names(tidydata))
+names(tidydata)<-gsub("Mag","Magnitude",names(tidydata))
+names(tidydata)<-gsub("-","",names(tidydata),fixed=T)
+```
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+Using the clean set of data, create a new data set containing the means of each
+variable for each subject and activity. 
+```
+subject_activity_means<-
+  tidydata %>%
+  group_by(subjectID,activityID) %>%
+  select(where(is.numeric)) %>%
+  summarize_all(mean)
+```
+
+
+
