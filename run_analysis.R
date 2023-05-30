@@ -69,14 +69,17 @@ names(tidydata)<-gsub("-","",names(tidydata),fixed=T)
 
 # A new set of data which calculates the mean of each feature for each subject
 # and activity. i.e. mean(tidydata[(SubjectID == n & Activity == m),i])
-subject_activity_means2<-
+subject_activity_means<-
   tidydata %>%
   group_by(subjectID,activityID) %>%
   select(where(is.numeric)) %>%
   summarize_all(mean)
 
-dir(paste0(fileloc,"/test/Inertial Signals"))
+# save to .csv for future use without having to go through the steps again.
+write.csv(subject_activity_means,"./data/subject_activity_means.csv")
 
-baxt<-read.table(paste0(fileloc,"/test/Inertial Signals/body_acc_x_test.txt"))
-head(baxt)
-names(tidydata)
+
+
+
+  
+  
