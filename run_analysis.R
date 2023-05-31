@@ -71,12 +71,13 @@ names(tidydata)<-gsub("-","",names(tidydata),fixed=T)
 # and activity. i.e. mean(tidydata[(SubjectID == n & Activity == m),i])
 subject_activity_means<-
   tidydata %>%
-  group_by(subjectID,activityID) %>%
+  group_by(SubjectID,Activity) %>%
   select(where(is.numeric)) %>%
   summarize_all(mean)
 
 # save to .csv for future use without having to go through the steps again.
 write.csv(subject_activity_means,"./data/subject_activity_means.csv")
+
 
 
 
